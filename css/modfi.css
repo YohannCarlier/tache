@@ -1,0 +1,12 @@
+.nature{
+    border: 0;
+    border-bottom: 1px solid #035d8a;
+    width: 50%;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 400;
+    font-family: "Open Sans";
+    padding-bottom: 5px;
+    margin-bottom: 30px;
+    display: flex;
+}
