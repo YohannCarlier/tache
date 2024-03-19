@@ -28,8 +28,8 @@
         <div class="formulaire"> 
         <p class="message"> <span>Inscription !!</span></p>
             <form action="" method="post">
-                <input type="text" name="email" placeholder="Adresse mail:" required><br>
-                <input type="password" name="mdp" placeholder="Mot de passe:" required><br><br>
+                <input type="text" name="email" placeholder="Adresse mail:" ><br>
+                <input type="password" name="mdp" placeholder="Mot de passe:" ><br><br>
                 <button type="submit" name="bouton">S'incrire</button><br><br><br>
                 <a href="index.php" class="inscription">Vous avez deja un compte ?</a>
             </form>

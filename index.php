@@ -44,8 +44,8 @@ if (isset($_POST["connexion"]))
         <p class="message"> <span>Connexion</span></p>
 
         <div class="inputs">
-            <input type="email" name="email" placeholder="Adresse mail" required><br>
-            <input type="password" name="mdp" placeholder="Mot de passe" required><br><br>
+            <input type="text" name="email" placeholder="Adresse mail" ><br>
+            <input type="password" name="mdp" placeholder="Mot de passe" ><br><br>
         </div>
         
         <div align="center">
