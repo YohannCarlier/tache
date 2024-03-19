@@ -51,18 +51,20 @@
 
         
         <?php
-        $id = mysqli_connect("localhost:3306","root","","tache");
+        $id = mysqli_connect("127.0.0.1:3307","root","","tache");
         $idu = $_SESSION['idu'];
         $pseudo = $_SESSION['email'];
         $actu = date("Y-m-d");
         $req= mysqli_query($id,"select * from liste WHERE idu=$idu");
 
         while($ligne=mysqli_fetch_assoc($req)){
+            $commentaireSecurise = htmlspecialchars($ligne["commentaire"]);
+            
             if(($ligne["date"]) <= ($actu)){
                 echo "<tr>
                 <th scope='row'>".$pseudo."</th>
                 <td>".$ligne["nature"]."</td>
-                <td>".$ligne["commentaire"]."</td>
+                <td>".$commentaireSecurise."</td>
                 <td>".$ligne["date"]."</td>
                 <td>".$ligne["etat"]."</td>
                 <td>";
@@ -84,7 +86,7 @@
                 echo "<tr>
                 <th scope='row'>".$pseudo."</th>
                 <td>".$ligne["nature"]."</td>
-                <td>".$ligne["commentaire"]."</td>
+                <td>".$commentaireSecurise."</td>
                 <td>".$ligne["date"]."</td>
                 <td>".$ligne["etat"]."</td>
                 <td>";
