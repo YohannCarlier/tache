@@ -1,28 +1,45 @@
 <?php
 session_start();
 
-if (isset($_POST["connexion"]))
-{
-    extract($_POST);
-    $id = mysqli_connect("localhost:3306","root","","tache");
-    $req = "select * from utilisateur where email='$email' and mdp='$mdp'";
-    $resultat = mysqli_query($id, $req);
-    $ligne=mysqli_fetch_assoc($resultat);
-    
-    if(mysqli_num_rows($resultat)>0)
-    {
+if (isset($_POST["connexion"])) {
+    // Récupération des données du formulaire
+    $email = $_POST['email'];
+    $mdp = $_POST['mdp'];
+
+    // Connexion à la base de données
+    $id = mysqli_connect("localhost:3306", "root", "", "tache");
+
+    // Préparation de la requête
+    $req = "SELECT * FROM utilisateur WHERE email=? AND mdp=?";
+    $stmt = mysqli_prepare($id, $req);
+
+    // Liaison des paramètres
+    mysqli_stmt_bind_param($stmt, "ss", $email, $mdp);
+
+    // Exécution de la requête
+    mysqli_stmt_execute($stmt);
+
+    // Récupération des résultats
+    $resultat = mysqli_stmt_get_result($stmt);
+
+    // Vérification des résultats
+    if(mysqli_num_rows($resultat) > 0) {
+        $ligne = mysqli_fetch_assoc($resultat);
+        
+        // Stockage des données de session
         $_SESSION["email"] = $ligne["email"];
         $_SESSION["mdp"] = $ligne["mdp"];
         $_SESSION["idu"] = $ligne["idu"];
-        $email = $ligne["email"];
-        $mdp = $ligne["mdp"];
-        $idu = $ligne["idu"];
-        header("location:acceuil.php");       
+
+        // Redirection vers la page d'accueil
+        header("location:acceuil.php");
+        exit(); // Assurez-vous de terminer le script après une redirection
+    } else { 
+        // Si les identifiants sont incorrects, afficher un message d'erreur
+        echo "<h3>/!\ Compte inexistant ou erreur d'identifiant ou de mot de passe /!\</h3>";
     }
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,41 +56,16 @@ if (isset($_POST["connexion"]))
     <form action="" method="post">
         <h1>Gestionnaires De Tâches</h1><img src="img/check-list.png"width="50px" alt="">
         <div class="connec">
-
-        
-        <p class="message"> <span>Connexion</span></p>
-
-        <div class="inputs">
-            <input type="text" name="email" placeholder="Adresse mail"><br>
-            <input type="password" name="mdp" placeholder="Mot de passe"><br><br>
-        </div>
-        
-        <div align="center">
-            <button type="submit" name="connexion">Se connecter</button><br><br><br>
-            <a href="inscription.php" class="inscription">Vous n'avez pas encore de compte ?</a>
-        </div>
+            <p class="message"> <span>Connexion</span></p>
+            <div class="inputs">
+                <input type="text" name="email" placeholder="Adresse mail"><br>
+                <input type="password" name="mdp" placeholder="Mot de passe"><br><br>
+            </div>
+            <div align="center">
+                <button type="submit" name="connexion">Se connecter</button><br><br><br>
+                <a href="inscription.php" class="inscription">Vous n'avez pas encore de compte ?</a>
+            </div>
             <br>
-            <?php
-                if (isset($_POST["connexion"]))
-                {
-                    extract($_POST);
-                    $id = mysqli_connect("127.0.0.1:3307", "root","","tache");
-                    $req = "select * from utilisateur where email='$email' and mdp='$mdp'";
-                    $resultat = mysqli_query($id, $req);
-                    $ligne=mysqli_fetch_assoc($resultat);
-                    
-                    if(mysqli_num_rows($resultat)>0)
-                    {
-                        $_SESSION["email"] = $email;
-                        $_SESSION["mdp"] = $mdp;
-                        $_SESSION["idu"] = $ligne["idu"];
-                        
-                        header("location:acceuil.php");       
-                    }else{ 
-                        echo "<h3>/!\ Compte inexistant ou erreur d'identifiant ou de mot de passe /!\</h3>";
-                    }
-                }
-                ?>
         </div>
     </form>  
     </center>  
