@@ -1,16 +1,35 @@
 <?php
 session_start();
+
+
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Initialisation des tentatives de connexion et du temps de blocage si non défini
+if (!isset($_SESSION['tentatives_connexion'])) {
+    $_SESSION['tentatives_connexion'] = 0;
+    $_SESSION['temps_deblocage'] = time();
 }
 
 if (isset($_POST["connexion"])) {
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         die('La validation CSRF a échoué.');
     }
+
+     // Vérification du blocage après 3 tentatives
+     if ($_SESSION['tentatives_connexion'] >= 3 && time() < $_SESSION['temps_deblocage']) {
+        die("Trop de tentatives de connexion. Veuillez attendre 1 minute avant de réessayer.");
+    }
+    
+
     // Récupération des données du formulaire
     $email = $_POST['email'];
     $mdp = $_POST['mdp'];
+
+    // Crypter le mot de passe avec MD5
+    $mdp_md5 = md5($mdp);
 
     // Connexion à la base de données
     $id = mysqli_connect("localhost:3306", "root", "", "tache");
@@ -20,7 +39,7 @@ if (isset($_POST["connexion"])) {
     $stmt = mysqli_prepare($id, $req);
 
     // Liaison des paramètres
-    mysqli_stmt_bind_param($stmt, "ss", $email, $mdp);
+    mysqli_stmt_bind_param($stmt, "ss", $email, $mdp_md5);
 
     // Exécution de la requête
     mysqli_stmt_execute($stmt);
@@ -30,19 +49,27 @@ if (isset($_POST["connexion"])) {
 
     // Vérification des résultats
     if(mysqli_num_rows($resultat) > 0) {
+
+        $_SESSION['tentatives_connexion'] = 0;
+
         $ligne = mysqli_fetch_assoc($resultat);
         
         // Stockage des données de session
         $_SESSION["email"] = $ligne["email"];
-        $_SESSION["mdp"] = $ligne["mdp"];
+        $_SESSION["mdp"] = $mdp_md5; // Stockage du mot de passe crypté en MD5
         $_SESSION["idu"] = $ligne["idu"];
 
         // Redirection vers la page d'accueil
         header("location:acceuil.php");
         exit(); // Assurez-vous de terminer le script après une redirection
     } else { 
-        // Si les identifiants sont incorrects, afficher un message d'erreur
-        echo "<h3>/!\ Compte inexistant ou erreur d'identifiant ou de mot de passe /!\</h3>";
+        $_SESSION['tentatives_connexion'] += 1;
+        if ($_SESSION['tentatives_connexion'] >= 3) {
+            $_SESSION['temps_deblocage'] = time() + 60; // On bloque pendant 1 minute
+            echo "Trop de tentatives de connexion. Veuillez attendre 1 minute avant de réessayer.";
+        } else {
+            echo "<h3>/!\ Compte inexistant ou erreur d'identifiant ou de mot de passe /!\</h3>";
+        }
     }
 }
 ?>

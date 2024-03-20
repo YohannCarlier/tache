@@ -32,8 +32,6 @@
                     $idu=$ligne["idu"];
                     echo "Mail:&nbsp&nbsp&nbsp
                         $email";?><br><br><?php
-                    echo "Mot de passe:&nbsp&nbsp&nbsp
-                     $mdp";?><br><br><?php
                     echo "Id utilisateur:&nbsp&nbsp&nbsp
                      $idu"; ?><br><br><?php
                     

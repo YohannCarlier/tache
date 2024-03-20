@@ -1,13 +1,11 @@
 <?php
     session_start();
-    if(isset($_POST["bouton"]))
-    {     
+    if(isset($_POST["bouton"])) {     
         $id = mysqli_connect("localhost:3306","root","","tache");
         mysqli_query($id,"SET NAMES utf8");
         $email = $_POST["email"];
-        $mdp = $_POST["mdp"];
-        $req = "INSERT INTO utilisateur (email, mdp)
-        VALUES ('$email','$mdp')";
+        $mdp = md5($_POST["mdp"]); // Cryptage du mot de passe en MD5
+        $req = "INSERT INTO utilisateur (email, mdp) VALUES ('$email','$mdp')";
         $resultat = mysqli_query($id, $req);
         header("location:index.php");  
     }
