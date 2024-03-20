@@ -51,7 +51,7 @@
 
         
         <?php
-        $id = mysqli_connect("127.0.0.1:3307","root","","tache");
+        $id = mysqli_connect("127.0.0.1:3306","root","","tache");
         $idu = $_SESSION['idu'];
         $pseudo = $_SESSION['email'];
         $actu = date("Y-m-d");

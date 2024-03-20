@@ -1,7 +1,13 @@
 <?php
 session_start();
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 if (isset($_POST["connexion"])) {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die('La validation CSRF a échoué.');
+    }
     // Récupération des données du formulaire
     $email = $_POST['email'];
     $mdp = $_POST['mdp'];
@@ -60,6 +66,7 @@ if (isset($_POST["connexion"])) {
             <div class="inputs">
                 <input type="text" name="email" placeholder="Adresse mail"><br>
                 <input type="password" name="mdp" placeholder="Mot de passe"><br><br>
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             </div>
             <div align="center">
                 <button type="submit" name="connexion">Se connecter</button><br><br><br>
