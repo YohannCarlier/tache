@@ -1,8 +1,7 @@
 <?php
     session_start();
-    if(isset($_SESSION["idu"]))
-    {
-    ?>  
+    if(isset($_SESSION["idu"])) {
+?>  
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -21,25 +20,26 @@
             <div class="user-info">
                 <a href="add.php"><img src="img/add.png" width=50px alt="" title="Ajouter une tâche"></a>
                 <a href="user.php"><img src="img/user.png" width=40pxpx alt="compte" title="Mon compte"></a>
-                <a href="user.php"><img src="img/user.png" width=40pxpx alt="compte" title="Mon compte"></a>
             </div>
             <a href="logout.php"><img src="img/logout.png" width=50px alt="logout" title="Déconnexion"></a>       
         </header><br><br>
-        <a href="" class="date">Nous somme le <?php echo date('d/m/y') ?> </a>
+        <a href="" class="date">Nous sommes le <?php echo date('d/m/y') ?> </a>
+        <?php
+            echo "<p>Nous sommes à la page : " . (isset($_GET['page']) ? $_GET['page'] : 1) . "</p>";
+        ?>
         <table class="table">
         <thead>
             <tr>
-                <th scope="col">@email</th>
+                <th scope="col">Email</th>
                 <th scope="col">Nature</th>
                 <th scope="col">Commentaire(s)</th>
-                <th scope="col">Echeance(s)</th>
+                <th scope="col">Echéance(s)</th>
                 <th scope="col">Etat</th>
                 <th scope="col">Actions</th>
-                
             </tr>
         </thead>
         <style>
-            .date{
+            .date {
                 text-decoration: none;
                 font-weight: 700;
                 font-family: "Open Sans";
@@ -50,16 +50,26 @@
             }
         </style>
 
-        
-        <?php
+<?php
         $id = mysqli_connect("127.0.0.1:3307","root","","tache");
         $idu = $_SESSION['idu'];
         $pseudo = $_SESSION['email'];
         $actu = date("Y-m-d");
-        $req= mysqli_query($id,"select * from liste WHERE idu=$idu");
 
-        while($ligne=mysqli_fetch_assoc($req)){
-            if(($ligne["date"]) <= ($actu)){
+        // Pagination Logic
+        $limit = 5; // Number of tasks per page
+        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+        $offset = ($page - 1) * $limit;
+
+        $total_rows_query = mysqli_query($id, "SELECT COUNT(*) AS total FROM liste WHERE idu=$idu");
+        $total_rows = mysqli_fetch_assoc($total_rows_query)['total'];
+        $total_pages = ceil($total_rows / $limit);
+
+        $query = "SELECT * FROM liste WHERE idu=$idu LIMIT $limit OFFSET $offset";
+        $req = mysqli_query($id, $query);
+
+        while($ligne=mysqli_fetch_assoc($req)) {
+            if(($ligne["date"]) <= ($actu)) {
                 echo "<tr>
                 <th scope='row'>".$pseudo."</th>
                 <td>".$ligne["nature"]."</td>
@@ -67,21 +77,16 @@
                 <td>".$ligne["date"]."</td>
                 <td>".$ligne["etat"]."</td>
                 <td>";
-
                 
                 echo "<a title='Time OUT' href='timeout.php?idtache=".$ligne["idtache"]."'><img src='img/sablier.png' width=30></a>";
                 
-
-
-                echo "
-                <a title='valider' href='valider.php?idtache=".$ligne["idtache"]."'><img src='img/valider.png' width=30></a>
+                echo "<a title='valider' href='valider.php?idtache=".$ligne["idtache"]."'><img src='img/valider.png' width=30></a>
                 <a title='supprimer' href='delete.php?idtache=".$ligne["idtache"]."'><img src='img/supprimer.png' width=30></a>
                 <a title='modifier' href='modif.php?idtache=".$ligne["idtache"]."'><img src='img/modif.png' width=30></a>
                     </td>
                 </tr>";
 
-
-            }else{
+            } else {
                 echo "<tr>
                 <th scope='row'>".$pseudo."</th>
                 <td>".$ligne["nature"]."</td>
@@ -90,31 +95,36 @@
                 <td>".$ligne["etat"]."</td>
                 <td>";
 
-                if($ligne["etat"] == "En attente"){
+                if($ligne["etat"] == "En attente") {
                     echo "<a title='commencer' href='encours.php?idtache=".$ligne["idtache"]."'><img src='img/play.png' width=30></a>";
-                }else if($ligne["etat"]=="En cours"){
+                } elseif($ligne["etat"]=="En cours") {
                     echo "<a title='mettre en pause' href='pause.php?idtache=".$ligne["idtache"]."'><img src='img/pause.png' width=30></a>";
                 }
 
-                echo "
-                <a title='valider' href='valider.php?idtache=".$ligne["idtache"]."'><img src='img/valider.png' width=30></a>
+                echo "<a title='valider' href='valider.php?idtache=".$ligne["idtache"]."'><img src='img/valider.png' width=30></a>
                 <a title='supprimer' href='delete.php?idtache=".$ligne["idtache"]."'><img src='img/supprimer.png' width=30></a>
                 <a title='modifier' href='modif.php?idtache=".$ligne["idtache"]."'><img src='img/modif.png' width=30></a>
                     </td>
                 </tr>";
-
             }
-            
         }
-        ?> 
+
+        // Pagination Links
+        echo "<div class='pagination'>";
+if($total_pages > 1) {
+    for ($i=1; $i <= $total_pages; $i++) { 
+        echo "<a href='acceuil.php?page=".$i."'>".$i."</a>";
+    }
+}
+echo "</div>";
+
+?> 
     </table>
         </body>
         </html>
-    <?php
-    }
-    else
-    {
-    ?>
+<?php
+    } else {
+?>
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -135,7 +145,8 @@
             </div>
             <a href="index.php"><img src="img/login.png" width=80px alt="login"></a>       
         </header>
+        </body>
         </html>
-    <?php
+<?php
     }
-    ?>
+?>
