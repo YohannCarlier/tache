@@ -21,6 +21,7 @@
             <div class="user-info">
                 <a href="add.php"><img src="img/add.png" width=50px alt="" title="Ajouter une tâche"></a>
                 <a href="user.php"><img src="img/user.png" width=40pxpx alt="compte" title="Mon compte"></a>
+                <a href="user.php"><img src="img/user.png" width=40pxpx alt="compte" title="Mon compte"></a>
             </div>
             <a href="logout.php"><img src="img/logout.png" width=50px alt="logout" title="Déconnexion"></a>       
         </header><br><br>
